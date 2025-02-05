@@ -1,0 +1,43 @@
+digraph reopened {
+   // graph styling
+   rankdir=tb;
+   node [shape=rectangle, style=filled, fillcolor=white, fontname=arial, color=black];
+   edge [fontname=arial, color=black];
+
+   // start node
+   begin_reopened [label="begin reopened", shape=oval, fillcolor=white, color=black, style="filled,rounded"];
+
+   // first decision point
+   user_added_request [label="user added request\nto handle new issue?", shape=diamond, style="filled"];
+
+   // steps for new support request
+   inform_resolved [label="inform user that issue was\nalready resolved, set ticket to resolved", shape=rectangle];
+
+   // create new ticket step
+   create_new_ticket [label="create new ticket for new request,\nset owner to nobody", shape=rectangle];
+
+   // second decision point
+   issue_not_resolved [label="was issue\nnot resolved?", shape=diamond, style="filled"];
+
+   // step when issue was resolved
+   user_said_thank_you [label="(probably a thank you note)", shape=rectangle];
+
+   // triage step
+   perform_triage [label="perform triage", shape=rectangle];
+
+   // end node
+   end_reopened [label="end reopened", shape=oval, fillcolor=white, color=black, style="filled,rounded"];
+
+   // connect start to first decision point
+   begin_reopened -> user_added_request;
+
+   // decision paths
+   user_added_request -> inform_resolved [label="yes"];
+   inform_resolved -> create_new_ticket;
+   create_new_ticket -> perform_triage;
+   user_added_request -> issue_not_resolved [label="no"];
+   issue_not_resolved -> user_said_thank_you [label="yes"];
+   user_said_thank_you -> end_reopened;
+   issue_not_resolved -> perform_triage [label="no"];
+   perform_triage -> end_reopened;
+}

@@ -1,0 +1,48 @@
+digraph state_machine {
+    // Graph styling
+    rankdir=LR;
+    ranksep=2.5;
+    nodesep=1.0;
+    fontsize=48;
+    edge [penwidth=2.0];
+    node [shape = circle, style = filled, fillcolor = white, width = 3.0, fontsize=48, penwidth=2.0];
+    
+    // Start node (black filled circle) - keeps original size
+    start [shape = circle, style = filled, fillcolor = black, width = 1.0, penwidth=2.0];
+    
+    // State nodes with larger sizes
+    new [shape = circle, width = 3.0];
+    open [shape = circle, width = 3.0];
+    rejected [shape = circle, width = 3.0];
+    waiting [shape = circle, width = 3.0];
+    stalled [shape = circle, width = 3.0];
+    resolved [shape = circle, width = 3.0];
+    
+    // Group new and rejected states together
+    {rank=same; new; rejected; waiting}
+    
+    // Transitions with labels
+    start -> new [label="event: user submits request\naction: RT creates ticket and sends automatic answer", fontsize=48];
+    new -> open [label="event: periodic poll event\naction: operators on duty group performs triage on ticket (see \"triage\" flow chart)", fontsize=48];
+    new -> rejected [label="event: decision - spam\naction: set to rejected", fontsize=48];
+    open -> waiting [label="event: ticket updated, waiting for user input\naction: set to waiting", fontsize=48];
+    open -> waiting [label="event: waited > 7 days for user input\naction: send reminder to user, set ticket to waiting a second time", fontsize=48];
+    waiting -> open [label="event: user responds\naction: RT sets ticket to open, operators on duty group performs triage", fontsize=48];
+    waiting -> open [label="event: ticket in waiting > 7 days\naction: RT automatically sets ticket to open, operators on duty group performs triage", fontsize=48];
+    open -> stalled [label="event: 3rd party contacted for help\naction: inform user, set to stalled", fontsize=48];
+    stalled -> open [label="event: 3rd party responds\naction: set to open, preform triage to find suitable handler", fontsize=48];
+    
+    // Multiple transitions from open to resolved
+    open -> resolved [label="event: decision - necessary help given to user\naction: set to resolved", fontsize=48];
+    open -> resolved [label="event: user responds issue is solved\naction: set to resolved", fontsize=48];
+    open -> resolved [label="event: decision - cannot be fixed\naction: set to resolved", fontsize=48];
+    open -> resolved [label="event: decision - cannot be handled with <= 2 weeks effort\naction: set to resolved", fontsize=48];
+    open -> resolved [label="event: waited >= 14 days for user input\naction: set to resolved and inform user", fontsize=48];
+    
+    // Transitions from stalled to resolved
+    stalled -> resolved [label="event: 3rd party solves issue\naction: inform user, set to resolved", fontsize=48];
+    stalled -> resolved [label="event: decision - cannot be fixed\naction: inform user, set to resolved", fontsize=48];
+    
+    // Transition from resolved back to open
+    resolved -> open [label="event: user adds input\naction: RT automatically sets ticket to open, operators on duty group investigates reason (see \"reopened\" flow chart)", fontsize=48];
+}

@@ -1,0 +1,74 @@
+digraph triage {
+   // graph styling
+   rankdir=tb;
+   node [shape=rectangle, style=filled, fillcolor=white, fontname=arial, color=black];
+   edge [fontname=arial, color=black];
+
+   // start node
+   begin_triage [label="begin triage", shape=oval, fillcolor=white, color=black, style="filled,rounded"];
+
+   // decision point
+   duplicate_check [label="duplicate of\nexisting ticket?", shape=diamond, style="filled"];
+
+   // process steps
+   merge_tickets [label="merge tickets", shape=rectangle];
+   tag_correctly [label="ensure ticket is\ntagged correctly", shape=rectangle];
+   find_handler [label="look up suitable handler\nusing NAISS competence matrix", shape=rectangle];
+
+   // first handler found decision point
+   handler_found [label="handler\nfound?", shape=diamond, style="filled"];
+
+   // additional process step
+   find_handler_chat [label="find ticket handler\nusing NAISS chat", shape=rectangle];
+
+   // second handler found decision point
+   handler_found_chat [label="handler\nfound?", shape=diamond, style="filled"];
+
+   // single ask permission step
+   ask_permission [label="ask handler for\npermission to transfer ownership", shape=rectangle];
+
+   // permission decision point
+   permission_granted [label="permission\ngranted?", shape=diamond, style="filled"];
+
+   // add ticket TODO step
+   add_ticket_todo [label="add a ticket TODO defining\nwhat needs to be done", shape=rectangle];
+
+   // switch owner step
+   switch_owner [label="switch owner", shape=rectangle];
+
+   // no handler found process step
+   no_handler_found [label="set NOBODY as owner, add ticket comment\nthat no handler was found, communicate\nthat no handler was found in NAISS chat", shape=rectangle];
+
+   // difficult ticket decision point
+   difficult_ticket [label="ticket classified\n\"difficult\"?", shape=diamond, style="filled"];
+
+   // process step for difficult tickets
+   add_to_discussion_list [label="add ticket to\nend-of-weekly-rotation\ndiscussion list", shape=rectangle];
+
+   // end node
+   end_triage [label="end triage", shape=oval, fillcolor=white, color=black, style="filled,rounded"];
+
+   // connect start to decision point
+   begin_triage -> duplicate_check;
+
+   // decision paths
+   duplicate_check -> merge_tickets [label="yes"];
+   duplicate_check -> tag_correctly [label="no"];
+   merge_tickets -> tag_correctly;
+   tag_correctly -> find_handler;
+   find_handler -> handler_found;
+   handler_found -> ask_permission [label="yes"];
+   handler_found -> find_handler_chat [label="no"];
+   find_handler_chat -> handler_found_chat;
+   handler_found_chat -> ask_permission [label="yes"];
+   handler_found_chat -> no_handler_found [label="no"];
+   no_handler_found -> difficult_ticket;
+   difficult_ticket -> add_to_discussion_list [label="yes"];
+   add_to_discussion_list -> end_triage;
+   difficult_ticket -> end_triage [label="no"];
+   ask_permission -> permission_granted;
+   permission_granted -> add_ticket_todo [label="yes"];
+   add_ticket_todo -> switch_owner;
+   switch_owner -> difficult_ticket;
+   permission_granted -> no_handler_found [label="no"];
+}
